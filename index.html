@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cricket AI Analyzer | Your Personal AI Cricket Coach</title>
+<meta name="description" content="Upload your batting or bowling video and get AI-powered technique insights, improvement points, and personalized practice drills.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f8f6;--surface:#fff;--text:#0b1b33;--muted:#56667c;--line:#dfe7e2;--acc:#148043;--g1:#22b45f;--g2:#188a4a;--gold:#c79a2e;--navy:#0a1428;--shadow:0 10px 30px rgba(10,20,40,.08);--r:20px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1428;--surface:#112040;--text:#eef3f8;--muted:#9aabc2;--line:#1f3557;--acc:#3ddc84;--shadow:0 10px 30px rgba(0,0,0,.3)}}
+:root[data-theme="dark"]{--bg:#0a1428;--surface:#112040;--text:#eef3f8;--muted:#9aabc2;--line:#1f3557;--acc:#3ddc84;--shadow:0 10px 30px rgba(0,0,0,.3)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:Sora,Inter,system-ui,sans-serif;line-height:1.15;margin:0}
+p{margin:0}
+.wrap{max-width:1120px;margin:auto;padding:0 20px}
+.ic{width:24px;height:24px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(10,20,40,.94);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);color:#fff}
+.bar{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;gap:10px;align-items:center;font:700 17px Sora,sans-serif;color:#fff;text-decoration:none}
+.mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center}
+.mark .ic{width:20px;height:20px}
+nav{display:flex;align-items:center;gap:22px}
+nav a,.lnk{color:#cdd8e6;text-decoration:none;font:500 15px Inter,sans-serif;background:none;border:0;cursor:pointer;padding:0}
+nav a:hover,.lnk:hover{color:#fff}
+.menu{display:none;place-items:center;width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:none;color:#fff;cursor:pointer}
+@media(max-width:900px){.menu{display:grid}nav{position:absolute;left:0;right:0;top:64px;flex-direction:column;align-items:stretch;gap:0;padding:8px 20px 20px;background:var(--navy);display:none;border-bottom:1px solid rgba(255,255,255,.1)}nav.open{display:flex}nav a,nav .lnk{padding:14px 0;text-align:left;border-bottom:1px solid rgba(255,255,255,.07)}nav .btn{margin-top:14px}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;min-height:46px;border-radius:14px;font:600 15px Inter,sans-serif;border:1px solid transparent;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.bp{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;box-shadow:0 8px 22px rgba(24,138,74,.35)}
+.bg{border-color:rgba(255,255,255,.28);color:#fff;background:rgba(255,255,255,.06)}
+.bo{border-color:var(--line);color:var(--text);background:var(--surface)}
+.hero{background:radial-gradient(800px 420px at 85% 8%,rgba(34,180,95,.28),transparent 60%),linear-gradient(180deg,#0a1428,#0f2247);color:#fff;padding:52px 0 76px;overflow:hidden}
+.hero .wrap{display:grid;gap:44px;align-items:center}
+@media(min-width:900px){.hero .wrap{grid-template-columns:1.1fr .9fr}}
+.eyebrow{display:inline-block;padding:6px 14px;border:1px solid rgba(199,154,46,.55);color:#e6c36a;border-radius:99px;font-size:13px;font-weight:600;margin-bottom:18px}
+h1{font-size:clamp(32px,6.4vw,54px);font-weight:800;letter-spacing:-.02em}
+h1 em{font-style:normal;background:linear-gradient(90deg,#3ddc84,#e6c36a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#b9c6d8;font-size:clamp(16px,2.4vw,19px);margin:18px 0 28px;max-width:540px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.vis{position:relative;max-width:400px;width:100%;margin:auto}
+.frame{border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 60px rgba(0,0,0,.45)}
+.frame svg{display:block;width:100%;height:auto}
+.tag{position:absolute;background:rgba(10,20,40,.88);border:1px solid rgba(61,220,132,.55);color:#d9f7e6;font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;animation:fl 4s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-5px)}}
+.cap{font-size:12px;color:#8fa2bd;text-align:center;margin-top:12px}
+section{padding:72px 0}
+.head{text-align:center;max-width:620px;margin:0 auto 40px}
+.head h2{font-size:clamp(26px,4.6vw,38px);font-weight:700;letter-spacing:-.01em}
+.head p{color:var(--muted);margin-top:12px}
+.kick{color:var(--acc);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.grid{display:grid;gap:16px}
+.g1{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);transition:transform .25s,border-color .25s}
+.card:hover{transform:translateY(-4px);border-color:var(--g1)}
+.card h3{font-size:18px;margin-bottom:8px}
+.card p{color:var(--muted);font-size:15px}
+.chip{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,rgba(34,180,95,.2),rgba(199,154,46,.2));color:var(--acc);display:grid;place-items:center;margin-bottom:14px}
+.ben{padding:20px}.ben h3{font-size:16px;margin:0}.ben .chip{margin-bottom:10px}
+#benefits{padding:40px 0 0;margin-top:-1px}
+.num{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#e6c36a,var(--gold));color:#0a1428;font:700 17px Sora,sans-serif;display:grid;place-items:center;margin-bottom:14px}
+.plan{display:flex;flex-direction:column;position:relative}
+.plan h3{font-size:20px}
+.price{margin:10px 0 18px}.price b{font:800 36px Sora,sans-serif}.price span{color:var(--muted);font-size:14px}
+.plan ul{list-style:none;margin:0 0 24px;padding:0;display:grid;gap:10px;flex:1}
+.plan li{padding-left:26px;position:relative;font-size:15px}
+.plan li::before{content:"✓";position:absolute;left:0;color:var(--acc);font-weight:700}
+.plan.feat{border:2px solid var(--gold)}
+.badge{position:absolute;top:-13px;left:24px;background:linear-gradient(135deg,#e6c36a,var(--gold));color:#0a1428;font-size:12px;font-weight:700;padding:3px 12px;border-radius:99px}
+.plan .btn{width:100%}
+details{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0 20px;margin-bottom:12px}
+summary{cursor:pointer;font-weight:600;padding:18px 28px 18px 0;list-style:none;position:relative}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:0;top:14px;font-size:24px;color:var(--acc);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--muted);padding-bottom:18px}
+.faq{max-width:760px;margin:auto}
+footer{background:var(--navy);color:#b9c6d8;padding:56px 0 32px;font-size:15px}
+.fg{display:grid;gap:32px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+footer h4{color:#fff;margin:0 0 12px;font:600 15px Sora,sans-serif}
+footer a,footer button{display:block;color:#b9c6d8;text-decoration:none;background:none;border:0;padding:5px 0;font:inherit;cursor:pointer;text-align:left}
+footer a:hover,footer button:hover{color:#3ddc84}
+.disc{border-top:1px solid rgba(255,255,255,.1);margin-top:36px;padding-top:24px;font-size:13px;line-height:1.7}
+dialog{border:0;border-radius:20px;padding:26px;width:min(420px,90vw);background:var(--surface);color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(5,10,20,.65)}
+dialog h3{margin-bottom:10px}dialog p{color:var(--muted);margin-bottom:20px}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
+body.inapp>header,body.inapp>main,body.inapp>footer{display:none}
+#app{display:none}body.inapp #app{display:block}
+.auth{min-height:100dvh;display:grid;place-items:center;padding:32px 20px;background:radial-gradient(700px 380px at 80% 0,rgba(34,180,95,.25),transparent 60%),linear-gradient(180deg,#0a1428,#0f2247)}
+.box{width:100%;max-width:420px;background:var(--surface);border-radius:24px;padding:28px;box-shadow:0 30px 70px rgba(0,0,0,.4)}
+form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-size:14px;font-weight:500}
+input,select{font:inherit;padding:12px 14px;min-height:46px;width:100%;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+input:focus,select:focus{outline:2px solid var(--g1);border-color:transparent}
+form .err{color:#d64545;font-size:14px;min-height:20px}form .ok{color:var(--acc);font-size:14px;min-height:20px}
+.alt{text-align:center;font-size:14px;color:var(--muted);margin-top:16px}.alt a{color:var(--acc);font-weight:600}
+.side{position:fixed;inset:0 auto 0 0;width:260px;background:var(--navy);padding:calc(env(safe-area-inset-top,0px) + 16px) 14px 16px;display:flex;flex-direction:column;gap:4px;transform:translateX(-100%);transition:transform .25s;z-index:30;overflow-y:auto}
+.side.open{transform:none}.side .logo{margin:0 8px 18px}
+.side a.n,.side button{display:flex;gap:12px;align-items:center;width:100%;padding:12px;border-radius:12px;color:#cdd8e6;text-decoration:none;font:500 15px Inter,sans-serif;background:none;border:0;cursor:pointer;text-align:left}
+.side a.on{background:rgba(34,180,95,.2);color:#fff}.side a.n:hover,.side button:hover{background:rgba(255,255,255,.07)}
+.main{min-width:0;padding:16px 20px 48px}
+.mtop .menu{display:grid;color:var(--text);border-color:var(--line);margin-bottom:12px}
+@media(min-width:960px){.side{transform:none}.main{margin-left:260px;padding:32px 40px}.mtop .menu{display:none}}
+.dh{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:24px}
+.dh h1{font-size:clamp(24px,4vw,32px)}.dh p{color:var(--muted)}
+.sh{font-size:20px;margin:32px 0 14px}
+.stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stat{padding:18px}.stat p{font-size:13px}.stat b{font:700 22px Sora,sans-serif;display:block;margin-top:4px;text-transform:capitalize}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row:last-child{border:0}.sm{min-height:36px;padding:6px 12px;font-size:13px}
+.pill{font-style:normal;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(34,180,95,.15);color:var(--acc);text-transform:capitalize}
+.empty{text-align:center;padding:36px 20px;border:2px dashed var(--line);border-radius:var(--r);background:var(--surface)}.empty p{color:var(--muted);max-width:400px;margin:6px auto 0}
+.note{background:rgba(199,154,46,.16);border:1px solid var(--gold);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:16px}
+.note a{color:var(--acc)}.note .btn{margin:8px 6px 0 0}
+.hb{display:grid;grid-template-columns:110px 1fr 24px;gap:10px;align-items:center;font-size:13px;margin:10px 0}
+.hb i{height:10px;border-radius:9px;background:linear-gradient(90deg,var(--g1),var(--gold))}
+.card svg{width:100%;height:auto}
+.up-t,.st2{font:700 17px Sora,sans-serif;margin:0 0 12px;padding:0}
+.tp{border:0;padding:0;margin:0 0 24px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tp legend{font:700 17px Sora,sans-serif;margin-bottom:12px;padding:0}
+.opt{display:flex!important;flex-direction:column;gap:4px;padding:16px;border:2px solid var(--line);border-radius:16px;background:var(--surface);cursor:pointer;position:relative;color:var(--acc);margin:0}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt b{color:var(--text)}.opt span{color:var(--muted);font-size:13px;font-weight:400}
+.opt.on{border-color:var(--g1);box-shadow:0 0 0 3px rgba(34,180,95,.18)}
+.dz{display:grid!important;justify-items:center;gap:4px;text-align:center;padding:32px 16px;border:2px dashed var(--line);border-radius:18px;background:var(--surface);cursor:pointer;color:var(--acc)}
+.dz:hover{border-color:var(--g1)}.dz b{color:var(--text)}.dz span,.dz small{color:var(--muted);font-weight:400}
+.fc{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.fc .fm{flex:1;min-width:0;display:grid;gap:4px;font-size:14px;justify-items:start}.fc b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pb{height:10px;border-radius:9px;background:var(--line);overflow:hidden;margin-top:12px}.pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g1),var(--gold));transition:width .3s}
+.pb.ind i{width:35%!important;animation:ind 1.4s ease-in-out infinite}@keyframes ind{from{margin-left:-35%}to{margin-left:100%}}
+.md{display:grid;gap:0 14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.uerr{color:#d64545;font-size:14px;margin:12px 0}.uw-b{margin-top:22px}
+.rh{background:radial-gradient(600px 300px at 90% 0,rgba(34,180,95,.3),transparent 60%),linear-gradient(135deg,#0a1428,#12305a);color:#fff;border-radius:24px;padding:24px;margin-bottom:8px}
+.rh h2{font-size:clamp(24px,4.5vw,32px);margin:12px 0 4px}.rh p{color:#b9c6d8;font-size:14px;margin:0}
+.ov{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-top:20px}
+.ov>div{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 14px}
+.ov small{display:block;color:#9fb0c7;font-size:12px;text-transform:uppercase;letter-spacing:.06em}.ov b{display:block;font-size:15px;margin-top:4px}
+.ov .wide{grid-column:1/-1}.ov .wide b{font-weight:500;line-height:1.5}
+.cf{display:flex!important;align-items:center;gap:8px;text-transform:capitalize}.cf::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c,#9fb0c7)}
+.cf.high{--c:#3ddc84}.cf.medium{--c:#e6c36a}.cf.low{--c:#ff7b7b}
+.sg{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.sk{display:flex;gap:12px;align-items:flex-start}.sk .chip{flex:none;margin:0;width:38px;height:38px}.sk h3{margin:0 0 4px}
+.ia{border-left:4px solid var(--gold);margin-bottom:12px}.ia .n{font:700 12px Sora,sans-serif;color:var(--gold);letter-spacing:.08em}.ia h3{margin:4px 0 6px}
+.bk{margin:12px 0 0;font-size:15px}.bk b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+.bk.act{background:rgba(34,180,95,.12);border-radius:12px;padding:10px 12px}.bk.act b{color:var(--acc)}
+.dr{display:flex!important;gap:14px;align-items:flex-start;cursor:pointer;margin:0 0 12px;transition:opacity .2s}
+.dr input{width:22px;height:22px;min-height:0;padding:0;margin-top:2px;accent-color:var(--g2);flex:none}
+.dr h3{margin:0 0 4px}.dr.on{opacity:.65}.dr.on h3{text-decoration:line-through}
+.dm{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center;font-size:13px;color:var(--muted)}
+.cr{border:2px solid #d99a2b;background:linear-gradient(135deg,rgba(199,154,46,.16),transparent)}
+.ac{display:flex;gap:10px;flex-wrap:wrap}.ac .btn{flex:1 1 200px}
+.dy{margin:0 0 10px}.dy summary{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-right:30px;font-size:15px}.dy summary span{flex:1 1 180px;color:var(--muted)}
+.dy ul{margin:4px 0 12px;padding-left:20px;font-size:15px}.dy .bk{margin:12px 0 6px}
+.st-todo,.st-rest{background:var(--line);color:var(--muted)}.st-progress{background:rgba(199,154,46,.22);color:var(--gold)}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap bar">
+  <a class="logo" href="#home"><span class="mark" data-i="ball"></span>Cricket AI Analyzer</a>
+  <button class="menu" id="mb" aria-label="Menu" aria-expanded="false" aria-controls="nav"><span data-i="menu"></span></button>
+  <nav id="nav">
+    <a href="#home">Home</a><a href="#how">How It Works</a><a href="#features">Features</a><a href="#pricing">Pricing</a>
+    <button class="lnk" data-soon="login">Login</button>
+    <button class="btn bp" data-soon="cta">Analyze My Video</button>
+  </nav>
+</div></header>
+
+<main>
+<section class="hero" id="home"><div class="wrap">
+  <div>
+    <span class="eyebrow">Batting &amp; bowling video analysis</span>
+    <h1>Turn Your Cricket Video Into Your <em>Personal AI Coach</em></h1>
+    <p class="sub">Upload your batting or bowling video and get AI-powered technique insights, improvement points, and personalized practice drills.</p>
+    <div class="cta">
+      <button class="btn bp" data-soon="cta"><span data-i="upload"></span>Analyze My Video</button>
+      <a class="btn bg" href="#how">See How It Works</a>
+    </div>
+  </div>
+  <div class="vis">
+    <div class="frame">
+      <svg viewBox="0 0 320 380" role="img" aria-label="Illustration of a batting stance with technique tracking points">
+        <defs><linearGradient id="bgz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12264a"/><stop offset="1" stop-color="#14532d"/></linearGradient></defs>
+        <rect width="320" height="380" fill="url(#bgz)"/>
+        <path d="M105 380l32-190h46l32 190z" fill="#e6c36a" opacity=".16"/>
+        <path d="M0 60h320M0 120h320" stroke="#fff" opacity=".05"/>
+        <g stroke="#3ddc84" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <path d="M160 100v80M160 116l30 24 10 12M160 180l-24 66-4 62M160 180l26 66 8 62"/>
+          <circle cx="160" cy="84" r="15"/>
+        </g>
+        <path d="M200 152l16 100" stroke="#e6c36a" stroke-width="6" stroke-linecap="round"/>
+        <path d="M200 152q40 40 6 110" stroke="#e6c36a" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity=".8"/>
+        <g fill="#0a1428" stroke="#e6c36a" stroke-width="2.5"><circle cx="160" cy="116" r="5"/><circle cx="190" cy="140" r="5"/><circle cx="200" cy="152" r="5"/><circle cx="160" cy="180" r="5"/><circle cx="136" cy="246" r="5"/><circle cx="186" cy="246" r="5"/><circle cx="132" cy="308" r="5"/><circle cx="194" cy="308" r="5"/></g>
+      </svg>
+    </div>
+    <span class="tag" style="top:9%;left:4%">Head position</span>
+    <span class="tag" style="top:46%;right:2%;animation-delay:-1.3s">Bat path</span>
+    <span class="tag" style="bottom:12%;left:4%;animation-delay:-2.4s">Footwork</span>
+    <p class="cap">Illustrative preview of the analysis view</p>
+  </div>
+</div></section>
+
+<section id="benefits"><div class="wrap"><div class="grid g1" id="ben"></div></div></section>
+
+<section id="how"><div class="wrap">
+  <div class="head rv"><p class="kick">How It Works</p><h2>From video to practice plan in four steps</h2></div>
+  <div class="grid g2" id="steps"></div>
+</div></section>
+
+<section id="features"><div class="wrap">
+  <div class="head rv"><p class="kick">Features</p><h2>Everything you need to improve your game</h2></div>
+  <div class="grid g2" id="feats"></div>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+  <div class="head rv"><p class="kick">Pricing</p><h2>Simple plans for every level</h2><p>Start free. Upgrade when you want more analyses and deeper feedback.</p></div>
+  <div class="grid g2" id="plans"></div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <div class="head rv"><p class="kick">FAQ</p><h2>Common questions</h2></div>
+  <div class="faq" id="faqs"></div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="fg">
+    <div><a class="logo" href="#home" style="padding:0"><span class="mark" data-i="ball"></span>Cricket AI Analyzer</a><p style="margin-top:12px">AI-powered cricket video analysis for players and coaches.</p></div>
+    <div><h4>Product</h4><a href="#how">How It Works</a><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+    <div><h4>Company</h4><button data-soon="Contact">Contact</button><button data-soon="Privacy Policy">Privacy Policy</button><button data-soon="Terms">Terms</button></div>
+    <div><h4>Disclaimer</h4><a href="#disc">Read disclaimer</a></div>
+  </div>
+  <p class="disc" id="disc"><b>Disclaimer:</b> Cricket AI Analyzer provides AI-generated feedback for training guidance only. It does not replace a qualified coach, and it is not medical or injury advice. Stop any drill that causes pain and consult a professional.<br><br>© 2026 Cricket AI Analyzer</p>
+</div></footer>
+
+<div id="app"></div>
+<dialog id="dlg"><h3 id="dt"></h3><p id="dp"></p><button class="btn bp" id="dc">Got it</button></dialog>
+
+<script>
+/* Icons: one small registry, rendered via ic() everywhere */
+const I={
+ball:'<circle cx="12" cy="12" r="9"/><path d="M5 6c4 3 4 9 0 12M19 6c-4 3-4 9 0 12"/>',
+bat:'<path d="M15 3l6 6-8 8-6-6z"/><path d="M8 16l-4 4"/>',
+spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+user:'<path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="7" r="4"/>',
+target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',
+chart:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
+eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+up:'<path d="M4 17l6-6 4 4 6-7M14 8h6v6"/>',
+chat:'<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/>',
+hist:'<path d="M3 12a9 9 0 109-9 9 9 0 00-6.7 3L3 8M3 3v5h5M12 7v5l3 2"/>',
+upload:'<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',
+report:'<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/>',
+menu:'<path d="M4 7h16M4 12h16M4 17h16"/>'};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+
+/* Reusable components */
+const Card=(i,t,d,c='')=>`<article class="card ${c} rv"><span class="chip">${ic(i)}</span><h3>${t}</h3><p>${d}</p></article>`;
+const Step=(n,i,t,d)=>`<article class="card rv"><div class="num">${n}</div><h3>${t}</h3><p>${d}</p></article>`;
+const Plan=p=>`<article class="card plan rv ${p.f?'feat':''}">${p.f?'<span class="badge">Full toolkit</span>':''}<h3>${p.n}</h3><div class="price"><b>${p.p}</b>${p.p==='₹0'?'':'<span>/month</span>'}</div><ul>${p.l.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ${p.f?'bp':'bo'}" data-soon="cta">${p.p==='₹0'?'Start Free':'Choose '+p.n}</button></article>`;
+const Faq=([q,a])=>`<details class="rv"><summary>${q}</summary><p>${a}</p></details>`;
+
+/* Content (kept as data so copy can move to a CMS or i18n later) */
+const benefits=[['spark','AI-Powered Analysis'],['user','Personalized Feedback'],['target','Practice Drills'],['chart','Progress Tracking']];
+const steps=[['Upload Video','Add a batting or bowling clip from your phone.'],['AI Analyzes Technique','The AI reviews your movement in the footage.'],['Receive Detailed Report','Get observations and clear improvement areas.'],['Follow Your Practice Plan','Work through drills and track your progress.']];
+const feats=[
+['bat','Batting Analysis','Stance, head position, footwork and bat path reviewed from your video.'],
+['ball','Bowling Analysis','Run-up, action, release and follow-through observations.'],
+['eye','Technique Observations','Plain-language notes on what your footage shows.'],
+['up','Improvement Areas','Clear points to focus on next, in order of priority.'],
+['target','Practice Drills','Drills matched to the areas you want to improve.'],
+['chart','Progress Tracking','See how your technique changes from one session to the next.'],
+['chat','AI Cricket Coach','Ask follow-up questions about your report.'],
+['hist','Analysis History','Keep every report in one place to revisit any time.']];
+const plans=[
+{id:'free',n:'Free',p:'₹0',limit:1,l:['1 analysis/month','Basic feedback','3 improvement tips']},
+{id:'player',n:'Player',p:'₹99',limit:5,l:['5 analyses/month','Detailed technique feedback','Practice drills','Progress history']},
+{id:'pro',n:'Pro',p:'₹149',limit:15,f:1,l:['15 analyses/month','Detailed analysis','Personalized practice plan','AI coach chat','Progress comparison']},
+{id:'academy',n:'Academy',p:'₹499',limit:50,l:['Up to 50 analyses/month','Multiple players','Coach dashboard','Player reports']}];
+const faqs=[
+['How does video analysis work?','You upload a batting or bowling clip and choose the type. The AI reviews your technique from the footage and returns a structured report with observations, improvement areas and practice drills.'],
+['What video formats are supported?','Common phone formats such as MP4 and MOV are the target. The exact formats and size limit will be shown on the upload screen. For best results, film from the side or behind with your full body in frame.'],
+['How long does analysis take?','It depends on video length and current load. You will see the status while it processes and can come back to the report later from your history.'],
+['Does AI replace a coach?','No. It gives you a consistent second opinion between sessions. A coach sees what video cannot, such as fitness, match context and your goals, so use both.'],
+['How do the subscription plans work?','Start free with one analysis a month. Paid plans add more analyses, detailed feedback, drills and progress tools. Academy is built for coaches managing several players.'],
+['Is my video private?','Your videos are used to generate your analysis and are not shown publicly. Full details on storage and deletion will be in the Privacy Policy.']];
+
+const $=s=>document.querySelector(s);
+document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=ic(e.dataset.i));
+$('#ben').innerHTML=benefits.map(([i,t])=>`<div class="card ben rv"><span class="chip">${ic(i)}</span><h3>${t}</h3></div>`).join('');
+$('#steps').innerHTML=steps.map(([t,d],k)=>Step(k+1,0,t,d)).join('');
+$('#feats').innerHTML=feats.map(f=>Card(...f)).join('');
+$('#plans').innerHTML=plans.map(Plan).join('');
+$('#faqs').innerHTML=faqs.map(Faq).join('');
+document.querySelectorAll('.btn[data-soon] ').forEach(b=>{if(!b.querySelector('svg')&&b.dataset.i)b.innerHTML=ic(b.dataset.i)});
+
+/* Dialog: honest placeholder until auth, upload and the Gemini service exist */
+const dlg=$('#dlg');
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-soon]');if(!b)return;
+  const k=b.dataset.soon;if(k==='cta'||k==='login'){$('#nav').classList.remove('open');location.hash=k==='login'?'#/login':(Auth.user()?'#/app/analyze':'#/signup');return}const cta=false;
+  $('#dt').textContent=cta?(k==='login'?'Login is coming next':'Upload is coming next'):k;
+  $('#dp').textContent=cta?'This is the public landing site. Sign-up, video upload and AI analysis are the next parts of the build.':'This page will be added before launch.';
+  $('#nav').classList.remove('open');dlg.showModal();
+});
+$('#dc').onclick=()=>dlg.close();
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+
+/* Mobile menu */
+const mb=$('#mb'),nav=$('#nav');
+mb.onclick=()=>mb.setAttribute('aria-expanded',nav.classList.toggle('open'));
+nav.addEventListener('click',e=>{if(e.target.closest('a')){nav.classList.remove('open');mb.setAttribute('aria-expanded','false')}});
+
+/* Scroll reveal */
+const els=document.querySelectorAll('.rv');
+if('IntersectionObserver' in window){const o=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');o.unobserve(x.target)}}),{threshold:.12});els.forEach(e=>o.observe(e))}else els.forEach(e=>e.classList.add('in'));
+</script>
+<script>
+/* App layer. Auth and Data are a LOCAL adapter (this browser only): swap them for a real backend without touching the views. */
+Object.assign(I,{card:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/>',out:'<path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/>'});
+const mem={},LS={get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return mem[k]??null}},set(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const Auth={
+ users:()=>LS.get('cai_users')||[],
+ user(){const id=LS.get('cai_session');return this.users().find(u=>u.id===id)||null},
+ async signUp(name,email,pw){email=email.trim().toLowerCase();if(pw.length<8)throw'Password must be at least 8 characters.';const us=this.users();if(us.some(u=>u.email===email))throw'An account with this email already exists.';const salt=crypto.randomUUID(),u={id:crypto.randomUUID(),email,salt,h:await sha(salt+pw),plan:'free',profile:{name:name.trim()}};LS.set('cai_users',[...us,u]);LS.set('cai_session',u.id)},
+ async logIn(email,pw){email=email.trim().toLowerCase();const u=this.users().find(x=>x.email===email);if(!u||u.h!==await sha(u.salt+pw))throw'Incorrect email or password.';LS.set('cai_session',u.id)},
+ logOut(){LS.set('cai_session',null)},
+ async resetPassword(){/* backend sends the reset email */}
+};
+const Data={
+ saveProfile(p){const u=Auth.user();u.profile=p;LS.set('cai_users',Auth.users().map(x=>x.id===u.id?u:x))},
+ analyses:()=>LS.get('cai_an_'+Auth.user().id)||[]
+};
+const OPT={age:['Under 14','14–17','18–24','25–34','35+'],level:['Beginner','School','College','Club','Academy','Semi-professional / Professional'],hand:['Right-handed','Left-handed'],role:['Batter','Bowler','All-rounder','Wicketkeeper'],pref:['Batting','Bowling','Both']};
+const Sel=(n,l,v)=>`<label>${l}<select name="${n}"><option value="">Select</option>${OPT[n].map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select></label>`;
+const Fld=(l,n,t,ac)=>`<label>${l}<input name="${n}" type="${t}" autocomplete="${ac}" required></label>`;
+const Box=(t,s,f,body,alt)=>`<div class="auth"><div class="box"><a class="logo" style="color:var(--text);margin-bottom:22px" href="#home"><span class="mark">${ic('ball')}</span>Cricket AI Analyzer</a><h2 style="font-size:24px">${t}</h2><p style="color:var(--muted);margin:6px 0 20px">${s}</p><form data-f="${f}">${body}<p class="err"></p><button class="btn bp">${{login:'Log in',signup:'Create account',forgot:'Send reset link'}[f]}</button></form><p class="alt">${alt}</p><p class="alt" style="font-size:12px">Development mode: accounts are stored in this browser only.</p></div></div>`;
+const A={
+ login:()=>Box('Welcome back','Log in to your dashboard.','login',Fld('Email','email','email','email')+Fld('Password','password','password','current-password')+'<a href="#/forgot" style="font-size:14px;color:var(--acc)">Forgot password?</a>','New here? <a href="#/signup">Create an account</a>'),
+ signup:()=>Box('Create your account','Start with the free plan.','signup',Fld('Name','name','text','name')+Fld('Email','email','email','email')+Fld('Password (8+ characters)','password','password','new-password'),'Already have an account? <a href="#/login">Log in</a>'),
+ forgot:()=>Box('Reset password','We will email you a reset link.','forgot',Fld('Email','email','email','email'),'<a href="#/login">Back to log in</a>')};
+
+const Hd=(t,s,x='')=>`<div class="dh"><div><h1>${t}</h1><p>${s}</p></div>${x}</div>`;
+const Note=x=>`<div class="note">${x}</div>`;
+const Empty=(i,t,d,l,h)=>`<div class="empty"><span class="chip" style="margin:0 auto 14px">${ic(i)}</span><h3>${t}</h3><p>${d}</p>${l?`<a class="btn bp" style="margin-top:18px" href="${h}">${l}</a>`:''}</div>`;
+const fd=d=>new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+const by=an=>[...an].sort((a,b)=>b.date.localeCompare(a.date));
+const Rows=an=>an.map(a=>`<div class="row"><span>${fd(a.date)}</span><span style="text-transform:capitalize">${esc(a.type)}</span><span><i class="pill">${esc(a.status)}</i></span><a class="btn bo sm" href="#/app/reports/${esc(a.id)}">View Report</a></div>`).join('');
+const DemoNote=Note('<b>Demo data (development only).</b> These are not real analysis results.');
+const Dev=()=>location.hash.includes('?dev')?Note('<b>Development tools</b><br><button class="btn bo sm" data-act="demo">Load demo data</button><button class="btn bo sm" data-act="cleardemo">Clear analyses</button>'):'';
+const demoData=()=>{const t=Date.now(),N=['Head position','Footwork','Bat path','Follow-through'];return [['batting',44],['bowling',52],['batting',58],['batting',61],['bowling',67]].map(([type,score],i)=>({id:'demo'+i,demo:true,type,score,status:'completed',plan:i%2==0,date:new Date(t-(5-i)*6048e5).toISOString(),areas:[N[i%4],N[(i+1)%4]]}))};
+
+/* Charts: pure SVG/HTML, driven only by stored analyses */
+const line=v=>{if(!v.length)return'<p>No scores yet.</p>';const s=v.length>1?280/(v.length-1):0,p=v.map((y,i)=>[10+i*s,110-y]);return `<svg viewBox="0 0 300 120" role="img" aria-label="Technique progress"><path d="M10 110H290" stroke="var(--line)"/><polyline points="${p.join(' ')}" fill="none" stroke="var(--g1)" stroke-width="3" stroke-linejoin="round"/>${p.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="4" fill="var(--gold)"/>`).join('')}</svg>`};
+const months=an=>{const r=[],n=new Date();for(let i=5;i>=0;i--){const d=new Date(n.getFullYear(),n.getMonth()-i,1),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');r.push([d.toLocaleString('en',{month:'short'}),an.filter(a=>a.date.slice(0,7)===k).length])}return r};
+const bars=d=>{const m=Math.max(...d.map(x=>x[1]),1),w=300/d.length;return `<svg viewBox="0 0 300 130" role="img" aria-label="Analysis history">${d.map(([k,c],i)=>{const h=c/m*80;return `<rect x="${i*w+8}" y="${100-h}" width="${w-16}" height="${h}" rx="5" fill="var(--g1)"/><text x="${i*w+w/2}" y="120" font-size="11" text-anchor="middle" fill="var(--muted)">${k}</text>`}).join('')}</svg>`};
+const areas=an=>{const c={};an.forEach(a=>(a.areas||[]).forEach(x=>c[x]=(c[x]||0)+1));const e=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5),m=e[0]?.[1]||1;return e.map(([k,v])=>`<div class="hb"><span>${esc(k)}</span><i style="width:${v/m*100}%"></i><b>${v}</b></div>`).join('')||'<p>No areas recorded yet.</p>'};
+const Charts=an=>an.length?`<div class="grid g2"><div class="card"><h3>Technique progress</h3>${line(by(an).reverse().filter(a=>a.score!=null).map(a=>a.score))}</div><div class="card"><h3>Analysis history</h3>${bars(months(an))}</div><div class="card"><h3>Improvement areas</h3>${areas(an)}</div></div>`:Empty('chart','No progress to show yet','Charts appear after your first analysis is complete.','Upload New Video','#/app/analyze');
+
+/* Views */
+const V={
+dashboard(){const p=Auth.user().profile,an=by(Data.analyses()),c=t=>an.filter(a=>a.type===t).length,l=an[0],S=[['Total Analyses',an.length],['Batting Analyses',c('batting')],['Bowling Analyses',c('bowling')],['Practice Plans',an.filter(a=>a.plan).length],['Latest Analysis',l?fd(l.date)+' · '+l.type:'None yet']];
+ return Hd('Welcome back, '+esc(p.name||'Player'),'Track your technique and keep improving.',`<a class="btn bp" href="#/app/analyze">${ic('upload')}Upload New Video</a>`)
+ +(p.age&&p.level&&p.hand&&p.role&&p.pref?'':Note('Complete your profile so your feedback fits your game. <a href="#/app/profile"><b>Add details</b></a>'))
+ +(an.some(a=>a.demo)?DemoNote:'')
+ +`<div class="stats">${S.map(([k,v])=>`<div class="card stat"><p>${k}</p><b>${esc(v)}</b></div>`).join('')}</div>${MyPlan()}<h2 class="sh">Recent Analysis</h2>`
+ +(an.length?`<div class="card">${Rows(an.slice(0,5))}</div>`:Empty('report','No analyses yet','Upload your first batting or bowling video to get your report.','Upload New Video','#/app/analyze'))
+ +'<h2 class="sh">Progress</h2>'+Charts(an)+Dev()},
+analyze:()=>Upload.view(),
+reports(id){if(id)return Report(id);const an=by(Data.analyses());return Hd('My Reports','Every analysis in one place.')+(an.length?`<div class="card">${Rows(an)}</div>`:Empty('report','No reports yet','Your reports will appear here after your first analysis.','Upload New Video','#/app/analyze'))},
+plans(){PP.resume();return Hd('Practice Plans','Your personalised 7-day plans, built from your analysis reports.')+PM()+(by(Data.analyses()).filter(a=>a.pp).map(Pl).join('')||Empty('target','No practice plans yet','Open a completed report and choose Generate Practice Plan to get a personalised 7-day plan.','My Reports','#/app/reports'))},
+progress(){const an=Data.analyses();return Hd('Progress','See how your technique changes over time.')+(an.some(a=>a.demo)?DemoNote:'')+Charts(an)+Dev()},
+profile(){const p=Auth.user().profile;return Hd('Profile','Your details help tailor feedback and drills.')+`<form class="card" style="max-width:560px" data-f="profile"><label>Name<input name="name" required maxlength="60" value="${esc(p.name)}"></label>${Sel('age','Age group',p.age)}${Sel('level','Playing level',p.level)}${Sel('hand','Right-handed / Left-handed',p.hand)}${Sel('role','Primary role',p.role)}${Sel('pref','Batting / Bowling preference',p.pref)}<p class="err"></p><button class="btn bp">Save profile</button></form>`},
+billing:()=>{queueMicrotask(()=>{BL.draw();BL.load().then(()=>BL.draw())});return Hd('Billing','Your plan, usage and payments.')+'<div id="bl"></div>'}
+};
+const NAV=[['dashboard','Dashboard','chart'],['analyze','Analyze Video','upload'],['reports','My Reports','report'],['plans','Practice Plans','target'],['progress','Progress','up'],['profile','Profile','user'],['billing','Billing','card']];
+const Side=cur=>`<aside class="side" id="side"><a class="logo" href="#/app/dashboard"><span class="mark">${ic('ball')}</span>Cricket AI Analyzer</a>${NAV.map(([k,l,i])=>`<a class="n ${k===cur?'on':''}" href="#/app/${k}">${ic(i)}${l}</a>`).join('')}<button data-act="logout">${ic('out')}Logout</button></aside>`;
+
+/* ===== Upload workflow =====
+The UI only talks to Svc(): upload / start / status / remove. Set CFG.api to switch on the Real adapter.
+Server contract (every call carries the signed-in user's token; client checks are UX only, the server must re-validate):
+ POST /uploads {name,type,size} -> {uploadUrl,objectPath}  short-lived signed URL into a private, user-scoped bucket path
+ PUT  uploadUrl  (file bytes go straight to storage)
+ POST /analyses {objectPath,type,meta} -> {id}  the server sends the stored file to Gemini; the API key never reaches the browser
+ GET  /analyses/:id -> {status:'processing'|'complete'|'failed',progress?,score?,areas?,plan?,report?,message?}
+ DELETE /uploads?path=  removes the stored object */
+const CFG={api:null,maxMB:200,poll:3000};
+const Real={
+ async j(p,o={}){const r=await fetch(CFG.api+p,{...o,headers:{'Content-Type':'application/json',...(Auth.token?{Authorization:'Bearer '+Auth.token()}:{})}});if(!r.ok){const b=await r.json().catch(()=>({}));const e=Error(b.message||'Request failed ('+r.status+')');e.code=b.code;throw e};return r.json()},
+ async upload(f,m,onP,sig){const mt=f.type||({mp4:'video/mp4',mov:'video/quicktime',webm:'video/webm'})[f.name.split('.').pop().toLowerCase()];const{uploadUrl,objectPath}=await this.j('/uploads',{method:'POST',body:JSON.stringify({name:f.name,type:mt,size:f.size}),signal:sig});await new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('PUT',uploadUrl);x.setRequestHeader('Content-Type',mt);x.upload.onprogress=e=>e.lengthComputable&&onP(e.loaded/e.total*100);x.onload=()=>x.status<300?ok():no(Error('Storage rejected the upload ('+x.status+')'));x.onerror=()=>no(Error('Network error during upload'));x.onabort=()=>no(Error('cancelled'));sig.addEventListener('abort',()=>x.abort());x.send(f)});return{objectPath}},
+ start:(p,t,m)=>Real.j('/analyses',{method:'POST',body:JSON.stringify({objectPath:p,type:t,meta:m})}),
+ status:id=>Real.j('/analyses/'+id),
+ remove:p=>Real.j('/uploads?path='+encodeURIComponent(p),{method:'DELETE'}).catch(()=>{}),
+ planStart:(id,c)=>Real.j('/analyses/'+id+'/plan',{method:'POST',body:JSON.stringify(c)}),
+ planStatus:id=>Real.j('/plans/'+id),
+ planProgress:(id,key,done)=>Real.j('/plans/'+id+'/progress',{method:'PUT',body:JSON.stringify({key,done})})
+};
+const Off={planStart:async()=>{throw Error('the plan service is not connected')},planProgress:async()=>{throw Error('the plan service is not connected')},planStatus:async()=>({status:'processing'}),upload:async()=>{throw Error('uploads are not available in this preview build because cloud storage is not connected')},start:async()=>{throw Error('the analysis service is not connected')},status:async()=>({status:'processing'})};
+const Local={async upload(f,m,onP,sig){const C=4194304;for(let o=0;o<f.size;o+=C){if(sig.aborted)throw Error('cancelled');await f.slice(o,o+C).arrayBuffer();onP(Math.min(o+C,f.size)/f.size*100)}return{objectPath:'dev-local/'+f.name}},start:async()=>({id:'dev-'+Date.now()}),status:async()=>({status:'processing'})};
+const Svc=()=>CFG.api?Real:/\?dev/.test(location.hash)?Local:Off;
+Data.put=(uid,r)=>{const k='cai_an_'+uid,l=LS.get(k)||[],i=l.findIndex(x=>x.id===r.id);i<0?l.push(r):l[i]={...l[i],...r};LS.set(k,l)};
+Object.assign(OPT,{bowl:['Right-arm fast','Right-arm medium','Right-arm off-spin','Right-arm leg-spin','Left-arm fast','Left-arm medium','Left-arm orthodox spin','Left-arm wrist spin'],cam:['Side-on','Front-on','Behind the stumps','Other'],vid:['Practice','Match']});
+const OKT=['video/mp4','video/quicktime','video/webm','video/mov'],EXT=['mp4','mov','webm'];
+const fmt=b=>b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+const check=f=>{const x=(f.name.split('.').pop()||'').toLowerCase();
+ if(!EXT.includes(x)||(f.type&&!OKT.includes(f.type)))return`This file type isn't supported. Please upload an MP4, MOV or WebM video.`;
+ if(!f.size)return'This file is empty. Please choose a different video.';
+ if(f.size>CFG.maxMB*1048576)return`This video is ${fmt(f.size)}. The maximum size is ${CFG.maxMB} MB. Try trimming the clip or recording at a lower resolution.`;return''};
+const TY=[['batting','bat','Batting','Stance, footwork and bat path'],['bowling','ball','Bowling','Run-up, action and release']];
+const U={phase:'form',type:'',file:null,obj:null,pct:0,err:'',warn:'',meta:{},ctl:null,id:'',t:0,fails:0};
+const Upload={
+ view(){if(U.phase!=='analyzing'){const P=Auth.user().profile||{};Object.assign(U,{phase:'form',type:'',file:null,obj:null,pct:0,err:'',warn:'',meta:{level:P.level||'',hand:P.hand||''}})}
+  queueMicrotask(()=>{this.draw();BL.load().then(()=>this.draw())});return Hd('Analyze Your Cricket Technique','Choose batting or bowling, upload your clip, then start the analysis.')+'<div id="uw" class="up"></div>'},
+ draw(){const w=$('#uw');if(!w)return;const p=U.phase,up=p==='uploading',dev=/\?dev/.test(location.hash),E=U.err?`<p class="uerr" role="alert">${esc(U.err)}</p>`:'';
+  const nb=CFG.api?'':dev?Note('<b>Dev mode.</b> The file is read in this browser only and nothing is sent anywhere. The analysis stays in "processing" because no backend is connected.'):Note('<b>Preview build.</b> Cloud storage and the AI service are not connected yet, so uploads are not available here.');
+  let h;
+  if(p==='analyzing')h=`<div class="card" role="status"><h2 class="up-t">Analyzing your cricket video…</h2><p style="color:var(--muted)">Waiting for the analysis service. You can leave this page: the analysis is listed in My Reports and updates when the service returns a result.</p><div class="pb ${U.pct?'':'ind'}"><i id="pb" style="width:${U.pct}%"></i></div><p id="ps" style="font-size:14px;margin-top:8px">Processing${U.pct?' '+U.pct+'%':''}</p>${U.warn?`<p class="uerr">${esc(U.warn)}</p>`:''}</div>`;
+  else if(p==='done')h=`<div class="card"><h2 class="up-t">Your analysis is ready</h2><p style="color:var(--muted)">The analysis service has returned a result.</p><div class="uw-b"><a class="btn bp" href="#/app/reports/${esc(U.id)}">View Report</a> <button class="btn bo" data-u="rm">Analyze another video</button></div></div>`;
+  else if(p==='uploaded')h=`<div class="card" role="status"><h2 class="up-t">Your video has been uploaded successfully.</h2><p style="color:var(--muted)">${esc(U.file.name)} · ${fmt(U.file.size)} · ${U.type}</p>${E}<div class="uw-b"><button class="btn bp" data-u="start">Start AI Analysis</button> <button class="btn bo" data-u="rm">Choose a different video</button></div></div>`;
+  else if(BL.st&&BL.blocked())h=LimitCard();
+  else h=`<fieldset class="tp"><legend>Step 1: Choose analysis type</legend>${TY.map(([v,i,t,s])=>`<label class="opt ${U.type===v?'on':''}"><input type="radio" name="type" value="${v}" ${U.type===v?'checked':''} ${up?'disabled':''}>${ic(i)}<b>${t}</b><span>${s}</span></label>`).join('')}</fieldset>
+<h3 class="st2">Step 2: Upload video</h3>${U.file?`<div class="fc"><span class="chip" style="margin:0">${ic('report')}</span><div class="fm"><b>${esc(U.file.name)}</b><span>${fmt(U.file.size)}</span><i class="pill" id="ps">${up?'Uploading '+U.pct+'%':'Ready to upload'}</i></div><button class="btn bo sm" data-u="rm">${up?'Cancel':'Remove'}</button></div>${up?`<div class="pb"><i id="pb" style="width:${U.pct}%"></i></div>`:''}`:`<label class="dz">${ic('upload')}<b>Tap to choose a video</b><span>or drag and drop it here</span><small>MP4, MOV or WebM · up to ${CFG.maxMB} MB</small><input type="file" id="vf" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" hidden></label>`}
+<h3 class="st2" style="margin-top:24px">Optional details</h3><div class="card md">${Sel('level','Playing level',U.meta.level)}${Sel('hand','Batting hand',U.meta.hand)}${U.type==='bowling'?Sel('bowl','Bowling type',U.meta.bowl):''}${Sel('cam','Camera angle',U.meta.cam)}${Sel('vid','Practice or match',U.meta.vid)}</div>${E}<div class="uw-b"><button class="btn bp" data-u="up" ${up?'disabled':''}>${up?'Uploading…':'Upload video'}</button></div>`;
+  w.innerHTML=nb+h},
+ prog(){const b=$('#pb'),s=$('#ps');if(b)b.style.width=U.pct+'%';if(s)s.textContent=U.phase==='uploading'?'Uploading '+U.pct+'%':'Processing'+(U.pct?' '+U.pct+'%':'');$('.pb')?.classList.toggle('ind',U.phase==='analyzing'&&!U.pct)},
+ pick(fs){U.err='';U.pct=0;if(fs&&fs.length){if(fs.length>1)U.err='Please choose one video at a time.';else{const e=check(fs[0]);U.err=e;U.file=e?null:fs[0]}}this.draw()},
+ async up(){if(!U.type)U.err='Choose Batting or Bowling first.';else if(!U.file)U.err='Choose a video to upload.';if(U.err&&(!U.type||!U.file))return this.draw();
+  U.err='';U.phase='uploading';U.pct=0;U.ctl=new AbortController();this.draw();
+  try{U.obj=(await Svc().upload(U.file,U.meta,x=>{U.pct=Math.round(x);this.prog()},U.ctl.signal)).objectPath;U.phase='uploaded'}
+  catch(e){U.phase='form';U.err=e.message==='cancelled'?'':`Upload failed: ${e.message||'unknown error'}. Your file is still selected, so you can try again.`}
+  U.ctl=null;this.draw()},
+ rm(){U.ctl?.abort();if(U.obj)Svc().remove?.(U.obj);Object.assign(U,{phase:'form',file:null,obj:null,pct:0,err:''});this.draw()},
+ async start(){if(BL.st&&BL.blocked()){U.err=BL.limitMsg();return this.draw()}const uid=Auth.user().id;U.err='';U.phase='analyzing';U.pct=0;U.warn='';U.fails=0;this.draw();
+  try{const r=await Svc().start(U.obj,U.type,U.meta);U.id=r.id;Data.put(uid,{id:r.id,date:new Date().toISOString(),type:U.type,status:'processing',meta:U.meta,demo:!CFG.api});this.poll(uid)}
+  catch(e){U.phase='uploaded';U.err=`Could not start the analysis: ${e.message||e}`;if(e.code==='limit_reached')BL.load().then(()=>this.draw());this.draw()}},
+ poll(uid){clearTimeout(U.t);U.t=setTimeout(async()=>{try{const r=await Svc().status(U.id);
+   if(r.status==='complete'){const R=r.report;if(!R||typeof R!=='object')throw Error('empty report');Data.put(uid,{id:U.id,status:'complete',report:R,areas:L(R.improvementAreas).map(x=>x.title)});U.phase='done'}
+   else if(r.status==='failed'){Data.put(uid,{id:U.id,status:'failed'});U.phase='uploaded';U.err=(r.message||'The analysis could not be completed.')+' Press Start AI Analysis to try again.'}
+   else{U.pct=r.progress||0;U.warn='';this.prog();return this.poll(uid)}
+  }catch(e){U.warn='Having trouble reaching the analysis service. Still trying.';this.draw();return this.poll(uid)}
+  this.draw()},CFG.poll)}
+};
+document.addEventListener('click',e=>{const b=e.target.closest('#uw [data-u]');if(b&&Upload[b.dataset.u])Upload[b.dataset.u]()});
+document.addEventListener('change',e=>{const t=e.target;if(!t.closest('#uw'))return;if(t.name==='type'){U.type=t.value;U.err='';Upload.draw()}else if(t.id==='vf')Upload.pick(t.files);else if(t.closest('.md'))U.meta[t.name]=t.value});
+['dragover','drop'].forEach(n=>document.addEventListener(n,e=>{if(!e.target.closest('#uw .dz'))return;e.preventDefault();if(n==='drop')Upload.pick(e.dataTransfer.files)}));
+addEventListener('hashchange',()=>{if(!/analyze/.test(location.hash))U.ctl?.abort()});
+
+/* Report view: renders the structured JSON returned by the server. Every value is escaped and nothing is shown unless the server returned it. No technique score is displayed: the backend does not provide a validated one. */
+Object.assign(I,{ok:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'});
+const L=a=>Array.isArray(a)?a:[];
+const coach=r=>{const none=!L(r.strengths).length&&!L(r.improvementAreas).length;
+ if(r.confidence!=='low'&&!r.coachReviewRecommended&&!none)return'';
+ return none?'The video did not show enough for a reliable review.':r.confidence==='low'?'The AI had low confidence in this analysis, so treat its observations as uncertain.':'The analysis flagged points that are worth checking in person.'};
+const Drills=a=>{const D=L(a.report?.practiceDrills),n=D.filter((_,i)=>a.done?.[i]).length;
+ if(!D.length)return'<div class="card"><p>No drills are available for this report.</p></div>';
+ return`<div class="dl"><p class="dn" style="font-weight:600;margin:0">${n} of ${D.length} completed</p><div class="pb" style="margin:8px 0 14px"><i style="width:${n/D.length*100}%"></i></div>${D.map((d,i)=>`<label class="card dr ${a.done?.[i]?'on':''}"><input type="checkbox" data-d="${esc(a.id)}|${i}" ${a.done?.[i]?'checked':''}><div><h3>${esc(d.name)}</h3><p>${esc(d.description)}</p><div class="dm"><span>Duration: ${esc(d.duration)}</span><i class="pill">${esc(d.difficulty)}</i></div></div></label>`).join('')}</div>`};
+const DIS='AI feedback is based only on what is visible in your video. It is training guidance, not medical advice, and does not replace a qualified coach.';
+const md=(a,c)=>{const r=a.report;return[`# ${a.type==='bowling'?'Bowling':'Batting'} analysis report`,`Date: ${fd(a.date)}`,`AI confidence: ${r.confidence}`,`Video quality: ${r.videoQuality||'Not described'}`,'','## Summary',r.summary,'','## Strengths',...L(r.strengths).map(x=>'- '+x),'','## Improvement areas',...L(r.improvementAreas).flatMap((i,n)=>[`### ${n+1}. ${i.title}`,`- What was observed: ${i.observation}`,`- Why it matters: ${i.whyItMatters}`,`- Recommended action: ${i.recommendedAction}`,'']),'## Practice drills',...L(r.practiceDrills).map((d,n)=>`- [${a.done?.[n]?'x':' '}] ${d.name} (${d.difficulty}, ${d.duration}): ${d.description}`),'',...(c?['## Coach review','Review by a qualified cricket coach is recommended. '+c,'']:[]),'---',DIS].join('\n')};
+async function saveFile(name,text){const d=window.claude?await claude.use('downloads').catch(()=>null):null;
+ if(d){try{await d.save({filename:name,data:text});return'Report saved.'}catch(e){return e&&e.code==='declined'?'Save cancelled.':'Saving is not available here.'}}
+ try{const u=URL.createObjectURL(new Blob([text],{type:'text/markdown'})),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);return'Download started. If nothing happens, check your browser download settings.'}catch{return'Saving is not available in this browser.'}}
+const Report=id=>{const a=Data.analyses().find(x=>x.id===id),back='<a class="btn bo sm" href="#/app/reports" style="margin-bottom:14px">← My reports</a>',r=a?.report;
+ if(!a)return back+Empty('report','Report not found','This report does not exist in your account.');
+ if(a.status==='processing')return back+Empty('report','Still analyzing','The analysis service has not returned a result yet.');
+ if(a.status!=='complete'||!r||typeof r!=='object')return back+Empty('report','No report available','This analysis did not produce a report. You can upload the video again.','Analyze Video','#/app/analyze');
+ const c=coach(r),T=a.type==='bowling'?'Bowling':'Batting',none=t=>`<div class="card"><p>${t}</p></div>`,B=(t,v,x='')=>v?`<p class="bk ${x}"><b>${t}</b>${esc(v)}</p>`:'';
+ return back+`<div class="rh"><span class="pill" style="background:rgba(255,255,255,.14);color:#fff">AI analysis report</span><h2>${T} analysis</h2><p>${fd(a.date)}</p><div class="ov"><div><small>Analysis type</small><b>${T}</b></div><div><small>Date</small><b>${fd(a.date)}</b></div><div><small>AI confidence</small><b class="cf ${esc(r.confidence)}">${esc(r.confidence)}</b></div>${c?'<div><small>Coach review</small><b>Recommended</b></div>':''}<div class="wide"><small>Video quality</small><b>${esc(r.videoQuality||'Not described')}</b></div></div></div>`
+ +`<h2 class="sh">AI summary</h2><div class="card"><p style="font-size:17px;line-height:1.65">${esc(r.summary)}</p></div>`
+ +'<h2 class="sh">Strengths</h2>'+(L(r.strengths).length?`<div class="sg">${L(r.strengths).map(x=>`<div class="card sk"><span class="chip">${ic('ok')}</span><p>${esc(x)}</p></div>`).join('')}</div>`:none('No clear strengths could be identified from this video.'))
+ +'<h2 class="sh">Improvement areas</h2>'+(L(r.improvementAreas).map((i,n)=>`<div class="card ia"><span class="n">AREA ${n+1}</span><h3>${esc(i.title)}</h3>${B('What was observed',i.observation)}${B('Why it matters',i.whyItMatters)}${B('Recommended action',i.recommendedAction,'act')}</div>`).join('')||none('No improvement areas were reported for this video.'))
+ +'<h2 class="sh">Practice drills</h2>'+Drills(a)
+ +'<h2 class="sh">Coach review</h2>'+(c?`<div class="card cr sk" role="note"><span class="chip">${ic('flag')}</span><div><h3>A review by a qualified cricket coach is recommended</h3><p>${esc(c)} A coach can watch you in person, see what video cannot, and confirm or correct these observations.</p></div></div>`:none('No coach review was flagged. This is still AI guidance from a single video, and a qualified coach can give a fuller picture.'))
+ +`<h2 class="sh">Actions</h2><div class="card"><div class="ac"><button class="btn bp" data-r="save" data-id="${esc(a.id)}">Save Report</button>${a.pp&&a.pp.status!=='failed'?'<a class="btn bo" href="#/app/plans">View Practice Plan</a>':L(r.improvementAreas).length?`<button class="btn bo" data-r="plan" data-id="${esc(a.id)}">Generate Practice Plan</button>`:''}<a class="btn bo" href="#/app/analyze">Analyze Another Video</a></div><p id="rm" role="status" style="font-size:14px;margin:12px 0 0;color:var(--muted)"></p></div>`+Note(DIS)};
+/* 7-day practice plan. The plan itself is created and saved by the server from the saved report; this code only requests it, shows it and syncs completion ticks. */
+const Sp=()=>{const v=Svc();return v.planStart?v:Off};
+const PO={},RUN=new Set();
+const pday=pp=>{const a=new Date(pp.start||Date.now()),b=new Date();a.setHours(0,0,0,0);b.setHours(0,0,0,0);return Math.round((b-a)/864e5)+1};
+const dstat=(pp,d)=>{const n=d.mainDrills.length,c=d.mainDrills.filter((_,i)=>pp.done?.[d.day+'.'+i]).length;return!n?'rest':c===n?'done':c?'progress':'todo'};
+const ptot=pp=>{let t=0,c=0;pp.days.forEach(d=>d.mainDrills.forEach((_,i)=>{t++;if(pp.done?.[d.day+'.'+i])c++}));return{t,c}};
+const SL={done:'Completed',progress:'In progress',todo:'Not started',rest:'Rest day'};
+const refresh=()=>{if(/#\/app\/(plans|dashboard)/.test(location.hash)){const y=scrollY;route();scrollTo(0,y)}};
+const PP={msg:'',
+ async make(aid){const a=Data.analyses().find(x=>x.id===aid),P=Auth.user().profile||{},uid=Auth.user().id;
+  Data.put(uid,{id:aid,pp:{status:'processing'}});
+  try{const r=await Sp().planStart(aid,{ageGroup:P.age||'',level:a.meta?.level||P.level||''});Data.put(uid,{id:aid,pp:{id:r.id,status:'processing'}});this.poll(uid,aid)}
+  catch(e){Data.put(uid,{id:aid,pp:{status:'failed',message:`Could not start your plan: ${e.message||e}. Please try again.`}})}
+  if(location.hash==='#/app/plans')route();else location.hash='#/app/plans'},
+ poll(uid,aid){RUN.add(aid);setTimeout(async()=>{const a=Data.analyses().find(x=>x.id===aid);
+  if(Auth.user()?.id!==uid||!a?.pp?.id||a.pp.status!=='processing'){RUN.delete(aid);return}
+  try{const r=await Sp().planStatus(a.pp.id);
+   if(r.status==='complete'&&r.plan&&L(r.plan.days).length===7)Data.put(uid,{id:aid,plan:true,pp:{id:a.pp.id,status:'complete',days:r.plan.days,overview:r.plan.overview,note:r.plan.coachSupervisionNote,done:r.done||{},start:r.startedAt}});
+   else if(r.status==='failed')Data.put(uid,{id:aid,pp:{status:'failed',message:(r.message||'The plan could not be created.')+' Please try again.'}});
+   else return this.poll(uid,aid)}catch(e){return this.poll(uid,aid)}
+  RUN.delete(aid);refresh()},CFG.poll)},
+ resume(){if(!Auth.user())return;const uid=Auth.user().id;Data.analyses().forEach(a=>{if(a.pp?.status==='processing'&&a.pp.id&&!RUN.has(a.id))this.poll(uid,a.id)})}};
+const PM=()=>{const m=PP.msg;PP.msg='';return m?`<p class="uerr" role="alert">${esc(m)}</p>`:''};
+const DrillRow=(a,day,i,x)=>{const k=day+'.'+i,on=a.pp.done?.[k];return`<label class="card dr ${on?'on':''}"><input type="checkbox" data-p="${esc(a.id)}|${k}" ${on?'checked':''}><div><h3>${esc(x.name)}</h3><p>${esc(x.description)}</p><div class="dm"><span>${esc(x.repsOrDuration)}</span><i class="pill">${esc(x.focusArea)}</i></div></div></label>`};
+const Li=v=>`<ul>${L(v).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+const Day=(a,d,cur)=>{const k=a.id+'|'+d.day,st=dstat(a.pp,d),o=PO[k]??(d.day===cur);
+ return`<details class="dy" data-k="${esc(k)}" ${o?'open':''}><summary><b>Day ${d.day}</b>${d.day===cur?'<i class="pill">Today</i>':''}<span>${esc(d.objective)}</span><i class="pill st-${st}">${SL[st]}</i></summary><p class="bk"><b>Warm-up</b></p>${Li(d.warmUp)}<p class="bk"><b>Main drills</b></p>${d.mainDrills.map((x,i)=>DrillRow(a,d.day,i,x)).join('')||'<p>Rest day: no main drills.</p>'}<p class="bk"><b>Cool-down</b></p>${Li(d.coolDown)}</details>`};
+const Pl=a=>{const pp=a.pp,T=a.type==='bowling'?'Bowling':'Batting',
+ head=`<div class="dh" style="margin-bottom:12px"><div><h3>${T} 7-day plan</h3><p>From your ${fd(a.date)} analysis</p></div><a class="btn bo sm" href="#/app/reports/${esc(a.id)}">View report</a></div>`;
+ if(pp.status==='processing')return`<div class="card" style="margin-bottom:16px" role="status">${head}<p><b>Creating your 7-day plan…</b></p><div class="pb ind"><i></i></div></div>`;
+ if(!pp.days)return`<div class="card" style="margin-bottom:16px">${head}<p class="uerr" role="alert">${esc(pp.message||'Your plan could not be created.')}</p><button class="btn bo sm" data-r="plan" data-id="${esc(a.id)}">Try again</button></div>`;
+ const{t,c}=ptot(pp),pct=t?Math.round(c/t*100):0,cur=Math.min(7,Math.max(1,pday(pp)));
+ return`<div class="card" style="margin-bottom:16px">${head}<p>${esc(pp.overview)}</p>${pp.note?Note('<b>Coach supervision:</b> '+esc(pp.note)):''}<p class="dn" style="font-weight:600;margin:12px 0 0">${pct}% complete · ${c} of ${t} drills done</p><div class="pb" style="margin:8px 0 16px"><i style="width:${pct}%"></i></div>${pp.days.map(d=>Day(a,d,cur)).join('')}</div>`};
+const MyPlan=()=>{PP.resume();const H='<h2 class="sh">My Practice Plan</h2>'+PM(),an=by(Data.analyses()).filter(a=>a.pp),a=an.find(x=>x.pp.days)||an[0];
+ if(!a)return H+Empty('target','No practice plan yet','Open a completed report and choose Generate Practice Plan to get a personalised 7-day plan.','My Reports','#/app/reports');
+ if(a.pp.status==='processing')return H+'<div class="card" role="status"><p><b>Creating your 7-day plan…</b></p><div class="pb ind"><i></i></div></div>';
+ if(!a.pp.days)return H+`<div class="card"><p class="uerr" role="alert">${esc(a.pp.message||'Your plan could not be created.')}</p><a class="btn bo sm" href="#/app/reports/${esc(a.id)}">Open the report to try again</a></div>`;
+ const pp=a.pp,{t,c}=ptot(pp),pd=pday(pp),cur=Math.min(7,Math.max(1,pd)),d=pp.days[cur-1],pct=t?Math.round(c/t*100):0,
+ all=pp.days.flatMap(y=>y.mainDrills.map((x,i)=>({k:y.day+'.'+i,n:`Day ${y.day}: ${x.name}`}))),ls=f=>`<ul>${all.filter(x=>!!pp.done?.[x.k]===f).map(x=>`<li>${esc(x.n)}</li>`).join('')||'<li>None</li>'}</ul>`;
+ return H+`<div class="card"><div class="dh" style="margin-bottom:8px"><div><h3>${pd>7?'Week finished · showing Day 7':'Day '+cur+' of 7'}</h3><p>${esc(d.objective)}</p></div><a class="btn bo sm" href="#/app/plans">Full plan</a></div><p class="dn" style="font-weight:600;margin:0">${pct}% complete</p><div class="pb" style="margin:8px 0 14px"><i style="width:${pct}%"></i></div><div class="stats" style="margin-bottom:14px"><div class="card stat"><p>Completed drills</p><b>${c}</b></div><div class="card stat"><p>Remaining drills</p><b>${t-c}</b></div></div><p class="bk"><b>Today's drills</b></p>${d.mainDrills.map((x,i)=>DrillRow(a,cur,i,x)).join('')||'<p>Rest day: no main drills today.</p>'}<details class="dy"><summary><b>Completed drills</b></summary>${ls(true)}</details><details class="dy"><summary><b>Remaining drills</b></summary>${ls(false)}</details></div>`};
+document.addEventListener('toggle',e=>{const d=e.target;if(d.dataset?.k)PO[d.dataset.k]=d.open},true);
+document.addEventListener('change',async e=>{const c=e.target.closest('input[data-p]');if(!c)return;const[aid,key]=c.dataset.p.split('|'),a=Data.analyses().find(x=>x.id===aid),uid=Auth.user().id;if(!a?.pp)return;
+ const set=(v)=>{const done={...a.pp.done};v?done[key]=true:delete done[key];Data.put(uid,{id:aid,pp:{...a.pp,done}})};
+ set(c.checked);
+ try{await Sp().planProgress(a.pp.id,key,c.checked)}catch(x){set(!c.checked);PP.msg='Could not save your progress. Check your connection and try again.'}
+ refresh()});
+
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-r]');if(!b)return;const a=Data.analyses().find(x=>x.id===b.dataset.id);if(!a)return;
+ if(b.dataset.r==='plan')PP.make(a.id)
+ else{const m=await saveFile(`cricket-${a.type}-report-${String(a.date).slice(0,10)}.md`,md(a,coach(a.report||{})));const o=$('#rm');if(o)o.textContent=m}});
+document.addEventListener('change',e=>{const c=e.target.closest('input[data-d]');if(!c)return;const[id,i]=c.dataset.d.split('|'),a=Data.analyses().find(x=>x.id===id);if(!a)return;
+ const done={...a.done,[i]:c.checked};Data.put(Auth.user().id,{id,done});c.closest('.dr').classList.toggle('on',c.checked);
+ const box=c.closest('.dl'),n=Object.values(done).filter(Boolean).length,t=box.querySelectorAll('input').length;box.querySelector('.dn').textContent=`${n} of ${t} completed`;box.querySelector('.pb i').style.width=(t?n/t*100:0)+'%'});
+
+/* Billing. Plan, status, usage and renewal come ONLY from the server (GET /billing). Nothing here marks a player as paid:
+   after Razorpay Checkout the page asks the server to verify the signature, then shows whatever the server returns.
+   The server also enforces the limit (402 limit_reached), so hiding a button here is a convenience, not the guard. */
+const PR=['free','player','pro','academy'],PLN=id=>plans.find(p=>p.id===id)||plans[0],sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const loadRzp=()=>window.Razorpay?Promise.resolve():new Promise((ok,no)=>{const t=document.createElement('script');t.src='https://checkout.razorpay.com/v1/checkout.js';t.onload=ok;t.onerror=()=>no(Error('Could not load the payment window. Check your connection and try again.'));document.head.appendChild(t)});
+const NOPAY=async()=>{throw Error('payments are not connected in this preview build')};
+Object.assign(Real,{billing:()=>Real.j('/billing'),checkout:plan=>Real.j('/billing/checkout',{method:'POST',body:JSON.stringify({plan})}),verify:x=>Real.j('/billing/verify',{method:'POST',body:JSON.stringify(x)}),change:plan=>Real.j('/billing/change',{method:'POST',body:JSON.stringify({plan})}),cancel:()=>Real.j('/billing/cancel',{method:'POST',body:'{}'})});
+[Off,Local].forEach(o=>Object.assign(o,{billing:async()=>null,checkout:NOPAY,verify:NOPAY,change:NOPAY,cancel:NOPAY}));
+const LimitCard=()=>{const s=BL.s;return`<div class="card cr sk" role="alert"><span class="chip">${ic('flag')}</span><div><h3>You have used all your analyses for this period</h3><p>${esc(PLN(s.subscriptionPlan).n)} plan: ${s.analysesUsed} of ${s.analysesLimit} used. Upgrade to analyze another video, or wait until ${fd(s.renewalDate)}.</p><div class="uw-b"><a class="btn bp" href="#/app/billing">See plans</a></div></div></div>`};
+const BL={st:null,msg:'',ok:false,cf:null,busy:false,
+ get s(){return this.st||this.def()},
+ def(){const m=new Date();m.setDate(1);m.setHours(0,0,0,0);return{subscriptionPlan:'free',subscriptionStatus:'active',analysesLimit:plans[0].limit,analysesUsed:Data.analyses().filter(a=>!a.demo&&a.status!=='failed'&&new Date(a.date)>=m).length,renewalDate:new Date(m.getFullYear(),m.getMonth()+1,1).toISOString(),cancelAtPeriodEnd:false,pendingPlan:null,history:[],local:true}},
+ blocked(){const s=this.s;return s.analysesUsed>=s.analysesLimit},
+ limitMsg(){return'You have used all the analyses in your plan for this period. Upgrade your plan to analyze another video.'},
+ async load(){try{this.st=(await Svc().billing())||this.def();this.msg=''}catch(e){this.msg='Could not load your billing details. '+(e.message||'')}return this.st},
+ html(){const s=this.st;
+  if(!s)return CFG.api?`<div class="card"><p class="${this.msg?'uerr':''}">${esc(this.msg||'Loading your billing details…')}</p>${this.msg?'<button class="btn bo sm" data-b="retry">Try again</button>':''}</div>`:'';
+  const P=PLN(s.subscriptionPlan),paid=s.subscriptionPlan!=='free',cur=PR.indexOf(s.subscriptionPlan),pct=Math.min(100,Math.round(s.analysesUsed/Math.max(1,s.analysesLimit)*100)),cf=this.cf;
+  const pill=paid&&s.cancelAtPeriodEnd?'Ends '+fd(s.renewalDate):s.subscriptionStatus==='past_due'?'Payment failed':'Active';
+  const ttl=cf?(cf.kind==='cancel'?'Cancel your subscription?':(cf.kind==='up'?'Upgrade to ':'Downgrade to ')+PLN(cf.plan).n+'?'):'';
+  const txt=cf?(cf.kind==='cancel'?`You keep your ${P.n} plan until ${fd(s.renewalDate)}. After that you move to Free (${plans[0].limit} analysis/month) and are not billed again.`:cf.kind==='up'?'We will ask Razorpay to switch your plan now. Your plan only changes after the server confirms it.':`The change takes effect on ${fd(s.renewalDate)}. You keep your current limits until then.`):'';
+  const H=L(s.history);
+  return(s.local?Note('<b>Preview build.</b> Payments are not connected, so this shows the Free plan and choosing a plan will not work here.'):'')
+  +`<div class="card"><div class="dh" style="margin-bottom:10px"><div><h3>${esc(P.n)} plan</h3><p>${P.p}${paid?'/month':''}</p></div><i class="pill">${esc(pill)}</i></div><p class="ppn" style="font-weight:600;margin:0">${s.analysesUsed} of ${s.analysesLimit} analyses used this period</p><div class="pb" style="margin:8px 0 12px"><i style="width:${pct}%"></i></div><p style="color:var(--muted);font-size:14px;margin:0">${paid?(s.cancelAtPeriodEnd?'Ends on ':'Renews on ')+fd(s.renewalDate):'Usage resets on '+fd(s.renewalDate)}${s.pendingPlan?` · Switching to ${esc(PLN(s.pendingPlan).n)} at renewal`:''}</p>${s.subscriptionStatus==='past_due'?'<p class="uerr">Your last payment did not go through, so your plan is on hold. Free limits apply until a payment succeeds.</p>':''}${this.blocked()?'<p class="uerr">You have reached your limit. Upgrade below to analyze more videos.</p>':''}${paid&&!s.cancelAtPeriodEnd?'<div class="uw-b"><button class="btn bo sm" data-b="pick" data-plan="free">Cancel subscription</button></div>':''}</div>`
+  +(this.msg?`<p role="status" style="color:${this.ok?'var(--acc)':'#d64545'};font-size:14px;margin:12px 0">${esc(this.msg)}</p>`:'')
+  +(cf?`<div class="card cr" role="alertdialog" style="margin-top:14px"><h3>${esc(ttl)}</h3><p>${esc(txt)}</p><div class="uw-b"><button class="btn bp" data-b="yes">Yes, continue</button> <button class="btn bo" data-b="no">Keep my plan</button></div></div>`:'')
+  +'<h2 class="sh">Plans</h2><div class="sg">'+plans.map(p=>{const i=PR.indexOf(p.id);return`<article class="card plan ${i===cur?'feat':''}">${i===cur?'<span class="badge">Your plan</span>':''}<h3>${p.n}</h3><div class="price"><b>${p.p}</b>${i?'<span>/month</span>':''}</div><ul>${p.l.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ${i>cur?'bp':'bo'}" data-b="pick" data-plan="${p.id}" ${i===cur||this.busy?'disabled':''}>${i===cur?'Current plan':i>cur?'Upgrade':p.id==='free'?'Downgrade to Free':'Downgrade'}</button></article>`}).join('')+'</div>'
+  +'<h2 class="sh">Billing history</h2><div class="card">'+(H.length?H.map(h=>`<div class="row"><span>${fd(h.date)}</span><span>${esc(PLN(h.plan).n)}</span><span>₹${esc(h.amount)}</span><span class="st">${h.status==='captured'?'Paid':'Failed'}</span></div>`).join(''):'<p class="em" style="padding:20px 0">No payments yet.</p>')+'</div>'
+  +Note('Payments are processed by Razorpay. Your plan changes only after the server has verified the payment.')},
+ draw(){const w=$('#bl');if(w)w.innerHTML=this.html()},
+ retry(){this.msg='';this.load().then(()=>this.draw())},
+ pick(p){this.msg='';const c=PR.indexOf(this.s.subscriptionPlan),i=PR.indexOf(p);
+  if(i===c)return;
+  if(p==='free')this.cf={kind:'cancel'};
+  else if(c===0||this.s.subscriptionStatus!=='active')return this.pay(p); /* first purchase: Razorpay Checkout is the confirmation */
+  else this.cf={kind:i>c?'up':'down',plan:p};
+  this.draw()},
+ no(){this.cf=null;this.draw()},
+ async yes(){const cf=this.cf;this.cf=null;this.busy=true;this.draw();
+  try{this.st=cf.kind==='cancel'?await Svc().cancel():await Svc().change(cf.plan);this.ok=true;
+   this.msg=cf.kind==='cancel'?`Your subscription will end on ${fd(this.st.renewalDate)}. You keep your plan until then.`:cf.kind==='down'?`Downgrade to ${PLN(cf.plan).n} scheduled.`:'Plan change requested. Your plan updates once the server confirms it.'}
+  catch(e){this.ok=false;this.msg=e.message}
+  this.busy=false;this.draw()},
+ async pay(plan){this.busy=true;this.ok=false;this.msg='';this.draw();
+  try{const r=await Svc().checkout(plan);await loadRzp();
+   const res=await new Promise((ok,no)=>{const c=new Razorpay({key:r.keyId,subscription_id:r.subscriptionId,name:'Cricket AI Analyzer',description:PLN(plan).n+' plan',handler:ok,modal:{ondismiss:()=>ok(null)}});c.on('payment.failed',()=>no(Error('The payment did not go through. Your plan has not changed.')));c.open()});
+   if(res){this.st=await Svc().verify(res);this.ok=true;this.msg=this.st.subscriptionPlan===plan?'Payment confirmed. Your plan is active.':'Payment received. Your plan updates once the payment is confirmed. This can take a few minutes.';
+    for(let i=0;i<8&&this.st.subscriptionPlan!==plan;i++){this.draw();await sleep(4000);this.st=(await Svc().billing())||this.st}}}
+  catch(e){this.ok=false;this.msg=e.message}
+  this.busy=false;this.draw()}};
+document.addEventListener('click',e=>{const b=e.target.closest('#bl [data-b]');if(b&&!b.disabled&&BL[b.dataset.b])BL[b.dataset.b](b.dataset.plan)});
+
+/* Router: protected /app/* routes, persistent session */
+function route(){
+ const path=location.hash.slice(1).split('?')[0],u=Auth.user(),auth=/^\/(login|signup|forgot)$/.test(path),inapp=path.startsWith('/app/');
+ if(inapp&&!u){location.hash='#/login';return}
+ if(auth&&u){location.hash='#/app/dashboard';return}
+ document.body.classList.toggle('inapp',auth||inapp);
+ if(!auth&&!inapp)return;
+ const [pg,arg]=path.slice(5).split('/');
+ $('#app').innerHTML=auth?A[path.slice(1)]():`<div class="shell">${Side(V[pg]?pg:'dashboard')}<main class="main"><div class="mtop"><button class="menu" data-act="menu" aria-label="Menu">${ic('menu')}</button></div>${(V[pg]||V.dashboard)(arg)}</main></div>`;
+ scrollTo(0,0);
+}
+addEventListener('hashchange',route);route();
+
+document.addEventListener('submit',async e=>{
+ e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f)),m=f.querySelector('p'),b=f.querySelector('button');
+ m.className='err';m.textContent='';b.disabled=true;
+ try{
+  const k=f.dataset.f;
+  if(k==='login'){await Auth.logIn(d.email,d.password);location.hash='#/app/dashboard'}
+  else if(k==='signup'){await Auth.signUp(d.name,d.email,d.password);location.hash='#/app/dashboard'}
+  else if(k==='forgot'){await Auth.resetPassword(d.email);m.className='ok';m.textContent='If an account exists for that email, a reset link will be sent. This local build cannot send email yet.'}
+  else if(k==='profile'){Data.saveProfile(d);m.className='ok';m.textContent='Profile saved.'}
+ }catch(x){m.className='err';m.textContent=x.message||x}
+ b.disabled=false;
+});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-act]'),s=$('#side');
+ if(b){const a=b.dataset.act;
+  if(a==='menu')s.classList.toggle('open');
+  else if(a==='logout'){Auth.logOut();location.hash='#/login'}
+  else{LS.set('cai_an_'+Auth.user().id,a==='demo'?demoData():[]);route()}}
+ else if(s&&!e.target.closest('#side'))s.classList.remove('open');
+ else if(s&&e.target.closest('#side a'))s.classList.remove('open');
+});
+</script>
+</body>
+</html>
