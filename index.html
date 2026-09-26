@@ -322,32 +322,71 @@ nav.addEventListener('click',e=>{if(e.target.closest('a')){nav.classList.remove(
 const els=document.querySelectorAll('.rv');
 if('IntersectionObserver' in window){const o=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');o.unobserve(x.target)}}),{threshold:.12});els.forEach(e=>o.observe(e))}else els.forEach(e=>e.classList.add('in'));
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* App layer. Auth and Data are a LOCAL adapter (this browser only): swap them for a real backend without touching the views. */
+/* App layer. Auth is real Supabase Auth (project zobkzuotlsfjnwwmtnjn); the profile form writes to the
+   "profiles" table over the Supabase REST API, both governed by row-level security (a player can only ever
+   read/write their own row). CFG.api (below) is a separate, still-disconnected piece: the custom Edge Function
+   for uploads/analyses/billing. Analyses/plans stay cached in this browser (LS) as a local mirror for listing. */
 Object.assign(I,{card:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/>',out:'<path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/>'});
 const mem={},LS={get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return mem[k]??null}},set(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
-const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const SUPA_URL='https://zobkzuotlsfjnwwmtnjn.supabase.co',SUPA_KEY='sb_publishable_2RILvfLcdEcZ4XaQLPLWaQ_imHsxJqk';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+let _session=null,_profile=null,authReady=false;
+const AUTH_ERR={'Invalid login credentials':'Incorrect email or password.','User already registered':'An account with this email already exists.','Email not confirmed':'Please confirm your email first — check your inbox for the confirmation link.','Password should be at least 6 characters.':'Password must be at least 8 characters.'};
+const friendly=e=>AUTH_ERR[e?.message]||e?.message||'Something went wrong. Please try again.';
+async function loadProfile(){
+ if(!_session){_profile=null;return}
+ const{data,error}=await sb.from('profiles').select('name,age_group,level,hand,role,pref').eq('user_id',_session.user.id).maybeSingle();
+ _profile=error||!data?{name:''}:{name:data.name||'',age:data.age_group||'',level:data.level||'',hand:data.hand||'',role:data.role||'',pref:data.pref||''};
+}
 const Auth={
- users:()=>LS.get('cai_users')||[],
- user(){const id=LS.get('cai_session');return this.users().find(u=>u.id===id)||null},
- async signUp(name,email,pw){email=email.trim().toLowerCase();if(pw.length<8)throw'Password must be at least 8 characters.';const us=this.users();if(us.some(u=>u.email===email))throw'An account with this email already exists.';const salt=crypto.randomUUID(),u={id:crypto.randomUUID(),email,salt,h:await sha(salt+pw),plan:'free',profile:{name:name.trim()}};LS.set('cai_users',[...us,u]);LS.set('cai_session',u.id)},
- async logIn(email,pw){email=email.trim().toLowerCase();const u=this.users().find(x=>x.email===email);if(!u||u.h!==await sha(u.salt+pw))throw'Incorrect email or password.';LS.set('cai_session',u.id)},
- logOut(){LS.set('cai_session',null)},
- async resetPassword(){/* backend sends the reset email */}
+ token:()=>_session?.access_token,
+ user(){return _session?{id:_session.user.id,email:_session.user.email,profile:_profile||{name:''}}:null},
+ async signUp(name,email,pw){
+  email=email.trim().toLowerCase();if(pw.length<8)throw'Password must be at least 8 characters.';
+  const{data,error}=await sb.auth.signUp({email,password:pw,options:{data:{name:name.trim()}}});
+  if(error)throw friendly(error);
+  if(!data.session)throw{ok:true,message:'Account created. Check your email to confirm it, then log in.'};
+  _session=data.session;await loadProfile();
+ },
+ async logIn(email,pw){
+  const{data,error}=await sb.auth.signInWithPassword({email:email.trim().toLowerCase(),password:pw});
+  if(error)throw friendly(error);
+  _session=data.session;await loadProfile();
+ },
+ async logOut(){await sb.auth.signOut()},
+ async resetPassword(email){
+  const{error}=await sb.auth.resetPasswordForEmail(email.trim().toLowerCase(),{redirectTo:location.origin+location.pathname+'#/reset'});
+  if(error)throw friendly(error);
+ },
+ async setNewPassword(pw){const{error}=await sb.auth.updateUser({password:pw});if(error)throw friendly(error)}
 };
+sb.auth.onAuthStateChange((event,session)=>{
+ if(event==='PASSWORD_RECOVERY'){_session=session;location.hash='#/reset';route();return}
+ _session=session;
+ (session?loadProfile():Promise.resolve(_profile=null)).then(()=>{if(authReady)route()});
+});
+async function initAuth(){const{data:{session}}=await sb.auth.getSession();_session=session;await loadProfile();authReady=true;route()}
 const Data={
- saveProfile(p){const u=Auth.user();u.profile=p;LS.set('cai_users',Auth.users().map(x=>x.id===u.id?u:x))},
+ async saveProfile(d){
+  const row={user_id:_session.user.id,name:d.name.trim(),age_group:d.age,level:d.level,hand:d.hand,role:d.role,pref:d.pref,updated_at:new Date().toISOString()};
+  const{error}=await sb.from('profiles').upsert(row);
+  if(error)throw'Could not save your profile. Please try again.';
+  _profile={name:row.name,age:row.age_group,level:row.level,hand:row.hand,role:row.role,pref:row.pref};
+ },
  analyses:()=>LS.get('cai_an_'+Auth.user().id)||[]
 };
 const OPT={age:['Under 14','14–17','18–24','25–34','35+'],level:['Beginner','School','College','Club','Academy','Semi-professional / Professional'],hand:['Right-handed','Left-handed'],role:['Batter','Bowler','All-rounder','Wicketkeeper'],pref:['Batting','Bowling','Both']};
 const Sel=(n,l,v)=>`<label>${l}<select name="${n}"><option value="">Select</option>${OPT[n].map(o=>`<option ${o===v?'selected':''}>${o}</option>`).join('')}</select></label>`;
 const Fld=(l,n,t,ac)=>`<label>${l}<input name="${n}" type="${t}" autocomplete="${ac}" required></label>`;
-const Box=(t,s,f,body,alt)=>`<div class="auth"><div class="box"><a class="logo" style="color:var(--text);margin-bottom:22px" href="#home"><span class="mark">${ic('ball')}</span>Cricket AI Analyzer</a><h2 style="font-size:24px">${t}</h2><p style="color:var(--muted);margin:6px 0 20px">${s}</p><form data-f="${f}">${body}<p class="err"></p><button class="btn bp">${{login:'Log in',signup:'Create account',forgot:'Send reset link'}[f]}</button></form><p class="alt">${alt}</p><p class="alt" style="font-size:12px">Development mode: accounts are stored in this browser only.</p></div></div>`;
+const Box=(t,s,f,body,alt)=>`<div class="auth"><div class="box"><a class="logo" style="color:var(--text);margin-bottom:22px" href="#home"><span class="mark">${ic('ball')}</span>Cricket AI Analyzer</a><h2 style="font-size:24px">${t}</h2><p style="color:var(--muted);margin:6px 0 20px">${s}</p><form data-f="${f}">${body}<p class="err"></p><button class="btn bp">${{login:'Log in',signup:'Create account',forgot:'Send reset link',reset:'Save password'}[f]}</button></form>${alt?`<p class="alt">${alt}</p>`:''}</div></div>`;
 const A={
  login:()=>Box('Welcome back','Log in to your dashboard.','login',Fld('Email','email','email','email')+Fld('Password','password','password','current-password')+'<a href="#/forgot" style="font-size:14px;color:var(--acc)">Forgot password?</a>','New here? <a href="#/signup">Create an account</a>'),
  signup:()=>Box('Create your account','Start with the free plan.','signup',Fld('Name','name','text','name')+Fld('Email','email','email','email')+Fld('Password (8+ characters)','password','password','new-password'),'Already have an account? <a href="#/login">Log in</a>'),
- forgot:()=>Box('Reset password','We will email you a reset link.','forgot',Fld('Email','email','email','email'),'<a href="#/login">Back to log in</a>')};
+ forgot:()=>Box('Reset password','We will email you a reset link.','forgot',Fld('Email','email','email','email'),'<a href="#/login">Back to log in</a>'),
+ reset:()=>Box('Set a new password','Choose a new password for your account.','reset',Fld('New password (8+ characters)','password','password','new-password')+Fld('Confirm password','confirm','password','new-password'),'')};
 
 const Hd=(t,s,x='')=>`<div class="dh"><div><h1>${t}</h1><p>${s}</p></div>${x}</div>`;
 const Note=x=>`<div class="note">${x}</div>`;
@@ -588,16 +627,17 @@ document.addEventListener('click',e=>{const b=e.target.closest('#bl [data-b]');i
 
 /* Router: protected /app/* routes, persistent session */
 function route(){
- const path=location.hash.slice(1).split('?')[0],u=Auth.user(),auth=/^\/(login|signup|forgot)$/.test(path),inapp=path.startsWith('/app/');
+ if(!authReady){$('#app').innerHTML='<div class="au"><div class="ab"><p>Loading…</p></div></div>';return}
+ const path=location.hash.slice(1).split('?')[0],u=Auth.user(),authOnly=/^\/(login|signup|forgot)$/.test(path),authAny=/^\/(login|signup|forgot|reset)$/.test(path),inapp=path.startsWith('/app/');
  if(inapp&&!u){location.hash='#/login';return}
- if(auth&&u){location.hash='#/app/dashboard';return}
- document.body.classList.toggle('inapp',auth||inapp);
- if(!auth&&!inapp)return;
+ if(authOnly&&u){location.hash='#/app/dashboard';return}
+ document.body.classList.toggle('inapp',authAny||inapp);
+ if(!authAny&&!inapp)return;
  const [pg,arg]=path.slice(5).split('/');
- $('#app').innerHTML=auth?A[path.slice(1)]():`<div class="shell">${Side(V[pg]?pg:'dashboard')}<main class="main"><div class="mtop"><button class="menu" data-act="menu" aria-label="Menu">${ic('menu')}</button></div>${(V[pg]||V.dashboard)(arg)}</main></div>`;
+ $('#app').innerHTML=authAny?A[path.slice(1)]():`<div class="shell">${Side(V[pg]?pg:'dashboard')}<main class="main"><div class="mtop"><button class="menu" data-act="menu" aria-label="Menu">${ic('menu')}</button></div>${(V[pg]||V.dashboard)(arg)}</main></div>`;
  scrollTo(0,0);
 }
-addEventListener('hashchange',route);route();
+addEventListener('hashchange',route);initAuth();
 
 document.addEventListener('submit',async e=>{
  e.preventDefault();const f=e.target,d=Object.fromEntries(new FormData(f)),m=f.querySelector('p'),b=f.querySelector('button');
@@ -606,16 +646,17 @@ document.addEventListener('submit',async e=>{
   const k=f.dataset.f;
   if(k==='login'){await Auth.logIn(d.email,d.password);location.hash='#/app/dashboard'}
   else if(k==='signup'){await Auth.signUp(d.name,d.email,d.password);location.hash='#/app/dashboard'}
-  else if(k==='forgot'){await Auth.resetPassword(d.email);m.className='ok';m.textContent='If an account exists for that email, a reset link will be sent. This local build cannot send email yet.'}
-  else if(k==='profile'){Data.saveProfile(d);m.className='ok';m.textContent='Profile saved.'}
- }catch(x){m.className='err';m.textContent=x.message||x}
+  else if(k==='forgot'){await Auth.resetPassword(d.email);m.className='ok';m.textContent='If an account exists for that email, a reset link has been sent.'}
+  else if(k==='reset'){if(d.password.length<8)throw'Password must be at least 8 characters.';if(d.password!==d.confirm)throw'Passwords do not match.';await Auth.setNewPassword(d.password);m.className='ok';m.textContent='Password updated.';location.hash='#/app/dashboard'}
+  else if(k==='profile'){await Data.saveProfile(d);m.className='ok';m.textContent='Profile saved.'}
+ }catch(x){if(x&&x.ok){m.className='ok';m.textContent=x.message}else{m.className='err';m.textContent=x.message||x}}
  b.disabled=false;
 });
-document.addEventListener('click',e=>{
+document.addEventListener('click',async e=>{
  const b=e.target.closest('[data-act]'),s=$('#side');
  if(b){const a=b.dataset.act;
   if(a==='menu')s.classList.toggle('open');
-  else if(a==='logout'){Auth.logOut();location.hash='#/login'}
+  else if(a==='logout'){b.disabled=true;await Auth.logOut();location.hash='#/login'}
   else{LS.set('cai_an_'+Auth.user().id,a==='demo'?demoData():[]);route()}}
  else if(s&&!e.target.closest('#side'))s.classList.remove('open');
  else if(s&&e.target.closest('#side a'))s.classList.remove('open');
